@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>SMART SCHOOL</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:sans-serif;
+scroll-behavior:smooth;
+}
+
+body{
+
+background:
+linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.9)),
+url("8.jpg") no-repeat center center fixed;
+
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+
+color:white;
+overflow-x:hidden;
+
+}
+
+/* Glass */
+
+.glass{
+
+background:rgba(255,255,255,.06);
+
+backdrop-filter:blur(18px);
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:0 8px 30px rgba(0,0,0,.35);
+
+}
+
+/* Sidebar */
+
+#sidebar{
+
+position:fixed;
+
+left:0;
+
+top:0;
+
+width:270px;
+
+height:100vh;
+
+z-index:999;
+
+}
+
+.logo{
+
+width:110px;
+
+height:110px;
+
+border-radius:50%;
+
+border:4px solid #facc15;
+
+object-fit:cover;
+
+margin:auto;
+
+display:block;
+
+}
+
+.menu{
+
+margin-top:35px;
+
+}
+
+.menu a{
+
+display:block;
+
+padding:18px 30px;
+
+color:white;
+
+font-weight:bold;
+
+text-decoration:none;
+
+transition:.35s;
+
+border-left:4px solid transparent;
+
+}
+
+.menu a:hover{
+
+background:rgba(255,255,255,.08);
+
+border-left:4px solid #facc15;
+
+padding-left:40px;
+
+}
+
+/* Main */
+
+main{
+
+margin-left:270px;
+
+}
+
+/* Navbar */
+
+header{
+
+position:fixed;
+
+left:270px;
+
+right:0;
+
+top:0;
+
+height:80px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:0 30px;
+
+z-index:500;
+
+}
+
+.btn{
+
+transition:.35s;
+
+}
+
+.btn:hover{
+
+transform:translateY(-4px);
+
+}
+
+/* Card */
+
+.card{
+
+transition:.4s;
+
+border-radius:30px;
+
+overflow:hidden;
+
+}
+
+.card:hover{
+
+transform:translateY(-10px);
+
+}
+
+/* Loader */
+
+#loader{
+
+position:fixed;
+
+inset:0;
+
+background:black;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+z-index:5000;
+
+}
+
+.loader{
+
+font-size:60px;
+
+font-weight:900;
+
+color:#facc15;
+
+animation:pulse 1s infinite;
+
+}
+
+@keyframes pulse{
+
+0%{opacity:.4;}
+
+50%{opacity:1;}
+
+100%{opacity:.4;}
+
+}
+
+@media(max-width:900px){
+
+#sidebar{
+
+transform:translateX(-100%);
+
+transition:.4s;
+
+}
+
+#sidebar.show{
+
+transform:translateX(0);
+
+}
+
+main{
+
+margin-left:0;
+
+}
+
+header{
+
+left:0;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+    <script>
+/* ==========================================
+PART 6.6
+ANNOUNCEMENT MANAGER
+========================================== */
+
+let announcements = JSON.parse(localStorage.getItem("teacherContent")) || [];
+
+function renderAnnouncementManager(){
+
+const content=document.getElementById("teacherContent");
+
+content.innerHTML=`
+
+<div class="glass rounded-3xl p-8">
+
+<h2 class="text-4xl font-black text-blue-400 mb-8">
+📢 จัดการประกาศ
+</h2>
+
+<input
+id="announceTitle"
+class="w-full p-4 rounded-xl text-black mb-5"
+placeholder="หัวข้อประกาศ">
+
+<textarea
+id="announceDetail"
+rows="5"
+class="w-full p-4 rounded-xl text-black mb-5"
+placeholder="รายละเอียดประกาศ"></textarea>
+
+<button
+onclick="saveAnnouncement()"
+class="bg-blue-500 hover:bg-blue-400 px-8 py-4 rounded-xl font-bold">
+
+💾 บันทึกประกาศ
+
+</button>
+
+<hr class="my-8">
+
+<div id="announcementList"></div>
+
+</div>
+
+`;
+
+renderAnnouncementList();
+
+}
+
+function saveAnnouncement(){
+
+const title=document.getElementById("announceTitle").value.trim();
+const detail=document.getElementById("announceDetail").value.trim();
+
+if(title==""){
+
+alert("กรอกหัวข้อประกาศ");
+
+return;
+
+}
+
+announcements.unshift({
+
+id:Date.now(),
+
+title,
+
+detail,
+
+date:new Date().toLocaleString("th-TH")
+
+});
+
+localStorage.setItem(
+"teacherContent",
+JSON.stringify(announcements)
+);
+
+renderAnnouncementList();
+
+document.getElementById("announceTitle").value="";
+document.getElementById("announceDetail").value="";
+
+alert("เพิ่มประกาศเรียบร้อย");
+
+}
+
+function renderAnnouncementList(){
+
+const list=document.getElementById("announcementList");
+
+if(!list)return;
+
+list.innerHTML="";
+
+announcements.forEach(item=>{
+
+list.innerHTML+=`
+
+<div class="glass rounded-2xl p-5 mb-5">
+
+<h2 class="text-2xl font-black text-yellow-400">
+
+${item.title}
+
+</h2>
+
+<p class="mt-3">
+
+${item.detail}
+
+</p>
+
+<p class="text-gray-400 mt-3">
+
+🕒 ${item.date}
+
+</p>
+
+<button
+onclick="deleteAnnouncement(${item.id})"
+class="bg-red-500 hover:bg-red-400 px-5 py-2 rounded-xl mt-5">
+
+🗑 ลบประกาศ
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+announcements.forEach((item,index)=>{
+
+box.innerHTML+=`
+
+<div class="glass rounded-3xl p-6 mb-6">
+
+<div class="flex justify-between items-center flex-wrap">
+
+<h2 class="text-3xl font-black text-yellow-400">
+
+${item.title}
+
+</h2>
+
+${index==0?`
+
+<span class="bg-red-500 px-4 py-2 rounded-full font-bold">
+
+NEW
+
+</span>
+
+`:""}
+
+</div>
+
+<p class="mt-5">
+
+${item.detail}
+
+</p>
+
+<p class="text-gray-400 mt-5">
+
+🕒 ${item.date}
+
+</p>
+
+</div>
+
+`;
+
+});
+
+
+function deleteAnnouncement(id){
+
+if(!confirm("ลบประกาศนี้ ?")) return;
+
+announcements=announcements.filter(x=>x.id!=id);
+
+localStorage.setItem(
+"teacherContent",
+JSON.stringify(announcements)
+);
+
+renderAnnouncementList();
+
+}
+</script>
+
+<!-- Loader -->
+
+<div id="loader">
+
+<div class="loader">
+
+SMART SCHOOL
+
+</div>
+
+</div>
+
+<!-- Login -->
+
+<div id="loginPage"
+class="min-h-screen flex items-center justify-center px-5">
+
+<div class="glass w-full max-w-md rounded-[40px] p-10 text-center">
+
+<img
+src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFiEYfcIpTn_K-szwPgTjFwcq163DFSI70ng&s"
+class="w-36 h-36 mx-auto rounded-full border-4 border-yellow-400 object-cover float mb-6">
+
+<h1 class="text-5xl font-black text-yellow-400 glow mb-2">
+SMART SCHOOL
+</h1>
+
+<p class="text-gray-300 mb-8">
+ระบบจัดการเรียนออนไลน์
+</p>
+
+<input
+id="password"
+type="password"
+placeholder="กรอกรหัสนักเรียน"
+class="w-full p-4 rounded-2xl text-black text-center text-lg font-bold outline-none mb-5"
+onkeypress="if(event.key==='Enter') login()"
+/>
+
+<button
+onclick="login()"
+class="btn w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-4 rounded-2xl text-lg">
+
+🚀 เข้าสู่ระบบ
+
+</button>
+
+</div>
+</div>
+
+<!-- Website -->
+
+<div id="website" style="display:none;">
+
+<!-- Sidebar -->
+
+<aside id="sidebar" class="glass">
+
+<div class="p-6 text-center">
+
+<img
+
+class="logo"
+
+src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFiEYfcIpTn_K-szwPgTjFwcq163DFSI70ng&s">
+
+<h2 class="text-3xl font-black mt-5 text-yellow-400">
+
+SMART SCHOOL
+
+</h2>
+
+<p class="text-gray-400">
+
+โพนทองพัฒนาวิทยา
+
+</p>
+
+</div>
+
+<div class="menu">
+
+<a href="#home">🏠 หน้าแรก</a>
+
+<a href="#subjects">📚 บทเรียน</a>
+
+<a href="#assignment">📂 ส่งงาน</a>
+
+<a href="#attendance">📋 เช็คชื่อ</a>
+
+<a href="#teacherContent" onclick="teacherContent()">👨‍🏫 ระบบครู</a>
+
+</div>
+
+</aside>
+
+<!-- Navbar -->
+
+<header class="glass">
+
+<div>
+
+<h2 id="studentName">
+
+ผู้ใช้งาน
+
+</h2>
+
+</div>
+
+<div>
+
+<button
+
+onclick="logout()"
+
+class="bg-red-500 px-5 py-2 rounded-xl font-bold">
+
+ออกจากระบบ
+
+</button>
+
+</div>
+
+</header>
+
+<!-- Main -->
+
+<main>
+
+<section
+
+id="home"
+
+class="min-h-screen flex items-center">
+
+<div class="max-w-6xl mx-auto px-10">
+
+<h1 class="text-6xl font-black">
+
+SMART
+
+<span class="text-yellow-400">
+
+SCHOOL
+
+</span>
+
+</h1>
+
+<p class="text-gray-300 text-xl mt-8">
+
+ระบบเรียนออนไลน์
+
+บทเรียน
+
+ข้อสอบ
+
+ส่งงาน
+
+เช็คชื่อ
+
+ภายในระบบเดียว
+</p>
+
+<div class="grid lg:grid-cols-3 gap-8 mt-16">
+
+<div class="glass card p-8">
+
+<h2 class="text-5xl">
+
+🌐
+
+</h2>
+
+<h3 class="text-2xl font-black mt-5">
+
+ทันสมัย
+
+</h3>
+
+</div>
+
+<div class="glass card p-8">
+
+<h2 class="text-5xl">
+
+💻
+
+</h2>
+
+<h3 class="text-2xl font-black mt-5">
+
+สะดวก
+
+</h3>
+
+</div>
+
+<div class="glass card p-8">
+
+<h2 class="text-5xl">
+
+📈
+
+</h2>
+
+<h3 class="text-2xl font-black mt-5">
+
+มีประสิทธิภาพ
+
+</h3>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- Part 2 จะต่อจากตรงนี้ -->
+
+<script>
+const students={
+
+"31740":"นายจิระวัฒน์ ทศกร",
+"32276":"นายติณณ์ เกื้อหนองขุ่น",
+"32244":"นายตุลธร เพชรสุทธิ์",
+"32037":"นายทีปกร เนินแสง",
+"31743":"นายธนพล พลาโส",
+"32247":"นายธนพล มนตรีโพธิ์",
+"32249":"เด็กชายนรากานต์ มาศรักษา",
+"33581":"นายนวพล ศิริสุวิชา",
+"31784":"นายบุญญ์บริบูรณ์ พลวี",
+"31785":"นายปรัชญา ชินทะวัน",
+"31786":"นายเป็นหนึ่ง ชลสาร",
+"31745":"นายพชรพล กุมผัน",
+"31789":"นายภณวัจน์ ซอยรัมย์",
+"31790":"นายภาสวีส์ พลเยี่ยม",
+"31753":"นายภูสิทธิ์ ตรีโอษฐ์",
+"31793":"นายวรัญญู ทองวงษ์",
+"31794":"นายศักรินทร์ วรรณสุทธิ์",
+"31796":"นายสิรวิทย์ ประดับพันธ์",
+"31797":"นายอาณาวิน ศรีอำพล",
+"31877":"นายเอกวิทย์ อยู่ไพร",
+"31839":"นางสาวกนกวรรณ เมืองพิน",
+"31798":"นางสาวกนอร มีชัย",
+"33608":"นางสาวจิดาภา คำแดงไสย",
+"31760":"นางสาวจีรนันท์ แวงวรรณ",
+"33615":"นางสาวชลดา บุตรพรม",
+"31765":"นางสาวณิชานันท์ แวงวรรณ",
+"33624":"นางสาวธารารัตน์ จูนิพัทธ์",
+"33625":"นางสาวธิดาวรรณ ฤทธิขันธ์",
+"31769":"นางสาวปภัสรา แสงกล้า",
+"31770":"นางสาวปภากานต์ นพคุณ",
+"31851":"นางสาวพิมพ์ชนก ชายสวัสดิ์",
+"32145":"นางสาวภคพร พิมพ์หอม",
+"32186":"นางสาวภัทรวดี ทับบุญ",
+"31816":"นางสาววรัญญา น้อยศรี",
+"31856":"นางสาววริศรา ปรีชาเจริญกิจ",
+"33650":"นางสาวศิริวดี โชติแสง",
+"31820":"นางสาวสิริวรรณ ดาวงศ์กลาง",
+"33655":"นางสาวสุพิชญา นุ่นนาแซง",
+"31861":"นางสาวอภิญญา แสงรีย์",
+"31778":"นางสาวอุมารินทร์ พลเยี่ยม",
+"00000":"คุณครู",
+"11111":"nadia คนงาม ",
+};
+
+window.onload=()=>{
+
+setTimeout(()=>{
+
+loader.style.display="none";
+
+},1000);
+
+};
+
+function login(){
+
+const pass=password.value.trim();
+
+if(students[pass]){
+
+studentName.innerHTML=students[pass];
+
+loginPage.style.display="none";
+
+website.style.display="block";
+renderStudentAnnouncements();
+
+}else{
+
+alert("ไม่พบรหัสนักเรียน");
+
+}
+
+}
+
+function logout(){
+
+location.reload();
+
+}
+
+function openTeacher(){
+
+alert("ระบบครู จะสร้างใน Part 6");
+
+}
+
+</script>
+<!-- =========================
+PART 2 : SUBJECTS / LESSONS
+นำโค้ดนี้ไปวางต่อจาก </section> ของหน้า Home
+========================= -->
+
+<section id="subjects" class="py-24 px-8">
+
+<div class="max-w-7xl mx-auto">
+
+<h1 class="text-5xl font-black text-center text-yellow-400 mb-16">
+📚 บทเรียนทั้งหมด
+</h1>
+
+<div id="lessonContainer"
+class="grid lg:grid-cols-2 gap-8">
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+PART 2 JAVASCRIPT
+นำไปวางก่อน </script>
+========================= -->
+
+<script>
+
+/* =========================
+LESSON DATABASE
+========================= */
+
+const lessons=[
+
+{
+subject:"ภาษาอังกฤษ",
+color:"yellow",
+chapters:[
+
+{
+title:"บทที่ 1 Introduction",
+video:"https://www.youtube.com/watch?v=z4Lon8Zu1Do",
+pdf:"#"
+},
+
+{
+title:"บทที่ 2 Grammar",
+video:"https://www.youtube.com/watch?v=1lJDJFZ82R0",
+pdf:"#"
+},
+
+{
+title:"บทที่ 3 Vocabulary",
+video:"https://www.youtube.com/watch?v=3Isok-3NanU",
+pdf:"#"
+}
+
+]
+
+},
+
+{
+subject:"คณิตศาสตร์",
+color:"blue",
+chapters:[
+
+{
+title:"บทที่ 1 จำนวนจริง",
+video:"#",
+pdf:"#"
+},
+
+{
+title:"บทที่ 2 สมการเชิงเส้น",
+video:"#",
+pdf:"#"
+}
+
+]
+
+},
+
+{
+subject:"วิทยาศาสตร์",
+color:"green",
+chapters:[
+
+{
+title:"บทที่ 1 สิ่งมีชีวิต",
+video:"#",
+pdf:"#"
+},
+
+{
+title:"บทที่ 2 ระบบนิเวศ",
+video:"#",
+pdf:"#"
+}
+
+]
+
+}
+
+];
+
+
+/* =========================
+LOAD LESSON
+========================= */
+
+function loadLessons(){
+
+const container=document.getElementById("lessonContainer");
+
+container.innerHTML="";
+
+lessons.forEach(subject=>{
+
+let html=`
+
+<div class="glass rounded-[35px] p-8">
+
+<h2 class="text-3xl font-black text-${subject.color}-400 mb-8">
+
+📘 ${subject.subject}
+
+</h2>
+
+`;
+
+subject.chapters.forEach((chapter,index)=>{
+
+html+=`
+
+<div class="glass rounded-2xl p-6 mb-5">
+
+<div class="flex justify-between items-center flex-wrap gap-4">
+
+<div>
+
+<h3 class="text-xl font-black">
+
+${chapter.title}
+
+</h3>
+
+<p class="text-gray-400">
+
+บทเรียนที่ ${index+1}
+
+</p>
+
+</div>
+
+<div class="flex flex-wrap gap-3">
+
+<a
+
+href="${chapter.video}"
+
+target="_blank"
+
+class="bg-red-500 hover:bg-red-400 px-5 py-3 rounded-xl font-bold">
+
+🎥 วิดีโอ
+
+</a>
+
+<a
+
+href="${chapter.pdf}"
+
+target="_blank"
+
+class="bg-blue-500 hover:bg-blue-400 px-5 py-3 rounded-xl font-bold">
+
+📄 PDF
+
+</a>
+
+<button
+
+onclick="openQuiz('${subject.subject}','${chapter.title}')"
+
+class="bg-green-500 hover:bg-green-400 px-5 py-3 rounded-xl font-bold">
+
+📝 แบบฝึก
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+html+=`</div>`;
+
+container.innerHTML+=html;
+
+});
+
+}
+
+
+/* =========================
+QUIZ BUTTON
+========================= */
+
+function openQuiz(subject,chapter){
+
+alert(
+"วิชา : "+subject+
+"\n\n"+
+chapter+
+"\n\nระบบข้อสอบจะเพิ่มใน Part 3"
+);
+
+}
+
+
+/* =========================
+AUTO LOAD
+========================= */
+
+const oldOnload=window.onload;
+
+window.onload=function(){
+
+if(oldOnload){
+oldOnload();
+}
+
+loadLessons();
+
+};
+
+</script>
+</script>
+<script>
+
+/* ==========================================
+PART 3.3
+SUBMIT / SCORE / RESULT
+========================================== */
+
+function submitQuiz(){
+
+saveAnswer();
+
+clearInterval(timerInterval);
+
+let score=0;
+
+let wrongList="";
+
+quiz.forEach((q,index)=>{
+
+const ans=userAnswer[index] || "-";
+
+if(ans===q.answer){
+
+score++;
+
+}else{
+
+wrongList+=
+`
+ข้อ ${index+1}
+
+คำถาม : ${q.question}
+
+ตอบ : ${ans}
+
+เฉลย : ${q.answer}
+
+--------------------------
+
+`;
+
+}
+
+});
+
+document.getElementById("quizBox").style.display="none";
+
+document.getElementById("resultBox").style.display="block";
+
+document.getElementById("scoreText").innerHTML=
+
+score+" / "+quiz.length;
+
+const percent=(score/quiz.length)*100;
+
+let message="";
+
+if(percent==100){
+
+message="🏆 ยอดเยี่ยม! ทำถูกทุกข้อ";
+
+}
+
+else if(percent>=80){
+
+message="🎉 ดีมาก ผ่านเกณฑ์";
+
+}
+
+else if(percent>=60){
+
+message="🙂 ผ่าน แต่ควรทบทวน";
+
+}
+
+else{
+
+message="📚 ควรศึกษาบทเรียนอีกครั้ง";
+
+}
+
+document.getElementById("scoreMessage").innerHTML=
+
+message+
+
+"<br><br>"
+
++
+
+"คิดเป็น "
+
++
+
+percent.toFixed(0)
+
++
+
+"%";
+
+if(wrongList!=""){
+
+document.getElementById("scoreMessage").innerHTML+=
+
+`
+
+<div class="glass rounded-2xl p-6 mt-8 text-left">
+
+<h2 class="text-2xl font-black text-red-400 mb-5">
+
+เฉลยข้อที่ตอบผิด
+
+</h2>
+
+<pre style="white-space:pre-wrap;color:white;">
+
+${wrongList}
+
+</pre>
+
+</div>
+
+`;
+
+}
+
+}
+
+/* ==========================================
+CLOSE RESULT
+========================================== */
+
+function closeResult(){
+
+document.getElementById("resultBox").style.display="none";
+
+}
+
+/* ==========================================
+RESET QUIZ
+========================================== */
+
+function restartQuiz(){
+
+currentQuestion=0;
+
+userAnswer=[];
+
+timeLeft=600;
+
+document.getElementById("resultBox").style.display="none";
+
+document.getElementById("quizBox").style.display="block";
+
+clearInterval(timerInterval);
+
+timerInterval=setInterval(updateTimer,1000);
+
+loadQuestion();
+
+}
+
+/* ==========================================
+ENTER KEY
+========================================== */
+
+document.addEventListener("keydown",function(e){
+
+if(document.getElementById("quizBox").style.display=="block"){
+
+if(e.key==="ArrowRight"){
+
+nextQuestion();
+
+}
+
+if(e.key==="ArrowLeft"){
+
+previousQuestion();
+
+}
+
+}
+
+});
+
+</script>
+<!-- ==========================================
+PART 4
+ASSIGNMENT
+========================================== -->
+
+<section id="assignment" class="py-24 px-8">
+
+<div class="max-w-6xl mx-auto">
+
+<h1 class="text-5xl font-black text-center text-yellow-400 mb-14">
+
+📂 ส่งงาน
+
+</h1>
+
+<div class="glass rounded-[35px] p-10">
+
+<div class="grid lg:grid-cols-2 gap-10">
+
+<div>
+
+<h2 class="text-3xl font-black mb-8">
+
+รายละเอียดงาน
+
+</h2>
+
+<label class="block mb-3 font-bold">
+
+เลือกวิชา
+
+</label>
+
+<select
+id="assignmentSubject"
+class="w-full p-4 rounded-xl text-black mb-5">
+
+<option>ภาษาอังกฤษ</option>
+
+<option>คณิตศาสตร์</option>
+
+<option>วิทยาศาสตร์</option>
+
+</select>
+
+<label class="block mb-3 font-bold">
+
+ชื่องาน
+
+</label>
+
+<input
+
+id="assignmentTitle"
+
+type="text"
+
+placeholder="เช่น Worksheet บทที่ 1"
+
+class="w-full p-4 rounded-xl text-black mb-5">
+
+<label class="block mb-3 font-bold">
+
+รายละเอียด
+
+</label>
+
+<textarea
+
+id="assignmentDetail"
+
+rows="6"
+
+class="w-full p-4 rounded-xl text-black"
+
+placeholder="รายละเอียดงาน...">
+
+</textarea>
+
+</div>
+
+<div>
+
+<h2 class="text-3xl font-black mb-8">
+
+อัปโหลดไฟล์
+
+</h2>
+
+<div
+
+class="border-2 border-dashed border-yellow-400 rounded-3xl p-10 text-center">
+
+<input
+
+id="assignmentFile"
+
+type="file"
+
+class="hidden"
+
+onchange="showFile()">
+
+<button
+
+onclick="document.getElementById('assignmentFile').click()"
+
+class="bg-yellow-400 hover:bg-yellow-300 text-black px-8 py-4 rounded-2xl font-black">
+
+📎 เลือกไฟล์
+
+</button>
+
+<h2
+
+id="fileName"
+
+class="mt-8 text-xl text-gray-300">
+
+ยังไม่ได้เลือกไฟล์
+
+</h2>
+
+<p class="text-gray-500 mt-3">
+
+รองรับ PDF / DOCX / PPTX / JPG / PNG
+
+</p>
+
+</div>
+
+<button
+
+onclick="uploadAssignment()"
+
+class="w-full bg-green-500 hover:bg-green-400 py-5 rounded-2xl font-black text-xl mt-8">
+
+📤 ส่งงาน
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div
+
+id="assignmentHistory"
+
+class="glass rounded-[35px] p-10 mt-12">
+
+<h2 class="text-3xl font-black text-yellow-400 mb-8">
+
+📋 ประวัติการส่งงาน
+
+</h2>
+
+<div id="historyList">
+
+<p class="text-gray-400">
+
+ยังไม่มีการส่งงาน
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<script>
+    <section id="#announcement" class="py-24 px-8">
+
+<div class="max-w-6xl mx-auto">
+
+<h1 class="text-5xl font-black text-center text-yellow-400 mb-12">
+
+📢 ประกาศโรงเรียน
+
+</h1>
+
+<div id="announcementBox">
+
+</div>
+
+</div>
+
+</section>
+
+/* ==========================================
+PART 4
+ASSIGNMENT
+========================================== */
+
+let assignments=[];
+
+function showFile(){
+
+const file=
+
+document.getElementById("assignmentFile").files[0];
+
+if(file){
+
+document.getElementById("fileName").innerHTML=
+
+"📄 "+file.name;
+
+}
+
+}
+
+function uploadAssignment(){
+
+const subject=
+
+document.getElementById("assignmentSubject").value;
+
+const title=
+
+document.getElementById("assignmentTitle").value;
+
+const detail=
+
+document.getElementById("assignmentDetail").value;
+
+const file=
+
+document.getElementById("assignmentFile").files[0];
+
+if(title==""){
+
+alert("กรอกชื่องาน");
+
+return;
+
+}
+
+if(!file){
+
+alert("เลือกไฟล์");
+
+return;
+
+}
+
+assignments.push({
+
+subject,
+
+title,
+
+detail,
+
+file:file.name,
+
+date:new Date().toLocaleString("th-TH")
+
+});
+
+renderAssignments();
+
+alert("✅ บันทึกข้อมูลเรียบร้อย\n\n(Part 5 จะเชื่อม Google Drive)");
+
+document.getElementById("assignmentTitle").value="";
+
+document.getElementById("assignmentDetail").value="";
+
+document.getElementById("assignmentFile").value="";
+
+document.getElementById("fileName").innerHTML=
+
+"ยังไม่ได้เลือกไฟล์";
+
+}
+
+function renderAssignments(){
+
+const list=
+
+document.getElementById("historyList");
+
+list.innerHTML="";
+
+assignments.forEach(item=>{
+
+list.innerHTML+=`
+
+<div class="glass rounded-2xl p-6 mb-5">
+
+<h2 class="text-2xl font-black text-yellow-400">
+
+${item.title}
+
+</h2>
+
+<p class="mt-2">
+
+📚 ${item.subject}
+
+</p>
+
+<p>
+
+📄 ${item.file}
+
+</p>
+
+<p>
+
+🕒 ${item.date}
+
+</p>
+
+<span
+
+class="inline-block mt-4 bg-green-500 px-4 py-2 rounded-xl font-bold">
+
+ส่งแล้ว
+
+</span>
+
+</div>
+
+`;
+
+});
+
+}
+
+</script>
+</section>
+
+<script>
+
+/* ==========================================
+PART 5.2.1
+SMART UPLOAD
+========================================== */
+
+const API_URL="";
+
+async function uploadAssignment(){
+
+const subject=document.getElementById("assignmentSubject").value;
+
+const title=document.getElementById("assignmentTitle").value.trim();
+
+const detail=document.getElementById("assignmentDetail").value.trim();
+
+const file=document.getElementById("assignmentFile").files[0];
+
+const student=document.getElementById("studentName").innerText;
+
+if(title==""){
+
+alert("กรุณากรอกชื่องาน");
+
+return;
+
+}
+
+if(!file){
+
+alert("กรุณาเลือกไฟล์");
+
+return;
+
+}
+
+if(file.size>20*1024*1024){
+
+alert("ไฟล์ต้องไม่เกิน 20 MB");
+
+return;
+
+}
+
+document.querySelector(
+"#assignment button:last-of-type"
+).disabled=true;
+
+document.querySelector(
+"#assignment button:last-of-type"
+).innerHTML="⏳ กำลังเตรียมไฟล์...";
+
+const reader=new FileReader();
+
+reader.onload=async function(){
+
+const base64=reader.result.split(",")[1];
+
+const payload={
+
+student:student,
+
+subject:subject,
+
+title:title,
+
+detail:detail,
+
+fileName:file.name,
+
+mimeType:file.type,
+
+file:base64
+
+};
+
+/* ตอนนี้ยังไม่เชื่อม Apps Script */
+
+console.log(payload);
+
+showUploadSuccess(payload);
+
+};
+
+reader.readAsDataURL(file);
+
+}
+
+</script>
+<div
+id="uploadProgress"
+class="hidden mt-6">
+
+<div class="w-full bg-gray-700 rounded-full h-4">
+
+<div
+id="progressBar"
+class="bg-yellow-400 h-4 rounded-full"
+style="width:0%">
+
+</div>
+
+</div>
+
+<p
+id="progressText"
+class="mt-3 text-center">
+
+0%
+
+</p>
+
+</div>
+<script>
+
+function showUploadSuccess(data){
+
+document.getElementById("uploadProgress").classList.remove("hidden");
+
+let progress=0;
+
+const bar=document.getElementById("progressBar");
+
+const text=document.getElementById("progressText");
+
+const timer=setInterval(()=>{
+
+progress+=5;
+
+bar.style.width=progress+"%";
+
+text.innerHTML=progress+"%";
+
+if(progress>=100){
+
+clearInterval(timer);
+
+assignments.unshift({
+
+student:data.student,
+
+subject:data.subject,
+
+title:data.title,
+
+detail:data.detail,
+
+file:data.fileName,
+
+date:new Date().toLocaleString("th-TH"),
+
+status:"รออัปโหลด"
+
+});
+
+renderAssignments();
+
+document.getElementById("assignmentTitle").value="";
+
+document.getElementById("assignmentDetail").value="";
+
+document.getElementById("assignmentFile").value="";
+
+document.getElementById("fileName").innerHTML="ยังไม่ได้เลือกไฟล์";
+
+document.querySelector(
+"#assignment button:last-of-type"
+).disabled=false;
+
+document.querySelector(
+"#assignment button:last-of-type"
+).innerHTML="📤 ส่งงาน";
+
+setTimeout(()=>{
+
+alert("✅ เตรียมไฟล์เรียบร้อย\n\nPart 5.2.2 จะเชื่อม Google Apps Script");
+
+},300);
+
+}
+
+},40);
+
+}
+
+</script>
+<script>
+
+/* ==========================================
+PART 5.2.2
+CONNECT API
+========================================== */
+
+if(API_URL===""){
+
+showUploadSuccess(payload);
+
+return;
+
+}
+
+try{
+
+document.getElementById("progressText").innerHTML="กำลังอัปโหลด...";
+
+const response=await fetch(API_URL,{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify(payload)
+
+});
+
+const result=await response.json();
+
+if(result.status==="success"){
+
+assignments.unshift({
+
+student:student,
+
+subject:subject,
+
+title:title,
+
+detail:detail,
+
+file:file.name,
+
+date:new Date().toLocaleString("th-TH"),
+
+status:"ส่งแล้ว",
+
+url:result.url
+
+});
+
+renderAssignments();
+
+document.getElementById("assignmentTitle").value="";
+
+document.getElementById("assignmentDetail").value="";
+
+document.getElementById("assignmentFile").value="";
+
+document.getElementById("fileName").innerHTML="ยังไม่ได้เลือกไฟล์";
+
+document.querySelector(
+"#assignment button:last-of-type"
+).disabled=false;
+
+document.querySelector(
+"#assignment button:last-of-type"
+).innerHTML="📤 ส่งงาน";
+
+alert("✅ ส่งงานสำเร็จ");
+
+}else{
+
+alert("❌ "+result.message);
+
+}
+
+}catch(err){
+
+console.error(err);
+
+alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+
+document.querySelector(
+"#assignment button:last-of-type"
+).disabled=false;
+
+document.querySelector(
+"#assignment button:last-of-type"
+).innerHTML="📤 ส่งงาน";
+
+}
+
+</script>
+
+</button>
+<!-- ==========================================
+PART 6
+TEACHER PANEL
+========================================== -->
+
+<div id="teacherPanel"
+
+style="display:none"
+
+class="fixed inset-0 bg-black/80 backdrop-blur z-[9999] overflow-auto">
+
+<div class="max-w-7xl mx-auto py-10 px-6">
+
+<div class="glass rounded-[35px] p-10">
+
+<div class="flex justify-between items-center">
+
+<h1 class="text-5xl font-black text-yellow-400">
+
+👨‍🏫 Teacher Panel
+
+
+
+</h1>
+
+<button
+
+onclick="teacherContent()"
+
+class="bg-red-500 px-6 py-3 rounded-xl font-bold">
+
+ปิด
+
+</button>
+
+</div>
+
+<hr class="my-8 border-white/10">
+
+<div class="grid lg:grid-cols-4 gap-6">
+
+<div class="glass rounded-3xl p-6">
+
+<h2 class="text-2xl font-black">
+    <div class="glass rounded-3xl p-6">
+
+<h2 class="text-2xl font-black">
+📊 Dashboard
+</h2>
+
+<p class="text-gray-400 mt-3">
+สรุประบบ
+</p>
+
+<button
+onclick="showTeacherTab('dashboard')"
+class="bg-cyan-500 w-full py-3 rounded-xl mt-6">
+
+เปิด
+
+</button>
+
+</div>
+
+📚 บทเรียน
+
+</h2>
+
+<p class="text-gray-400 mt-3">
+
+จัดการบทเรียน
+
+</p>
+
+<button
+
+onclick="showTeacherTab('lesson')"
+
+class="bg-yellow-400 text-black w-full py-3 rounded-xl mt-6">
+
+เปิด
+
+</button>
+
+</div>
+
+<div class="glass rounded-3xl p-6">
+
+<h2 class="text-2xl font-black">
+
+📝 ข้อสอบ
+
+</h2>
+
+<p class="text-gray-400 mt-3">
+
+จัดการข้อสอบ
+
+</p>
+
+<button
+
+onclick="showTeacherTab('quiz')"
+
+class="bg-green-500 w-full py-3 rounded-xl mt-6">
+
+เปิด
+
+</button>
+
+</div>
+
+<div class="glass rounded-3xl p-6">
+
+<h2 class="text-2xl font-black">
+
+📢 ประกาศ
+
+</h2>
+
+<p class="text-gray-400 mt-3">
+
+ข่าวสาร
+
+</p>
+
+<button
+
+onclick="showTeacherTab('news')"
+
+class="bg-blue-500 w-full py-3 rounded-xl mt-6">
+
+เปิด
+
+</button>
+
+</div>
+
+<div class="glass rounded-3xl p-6">
+
+<h2 class="text-2xl font-black">
+
+📂 งานนักเรียน
+
+</h2>
+
+<p class="text-gray-400 mt-3">
+
+ตรวจงาน
+
+</p>
+
+<button
+
+onclick="showTeacherTab('assignment')"
+
+class="bg-purple-500 w-full py-3 rounded-xl mt-6">
+
+เปิด
+
+</button>
+
+</div>
+
+</div>
+
+<div id="teacherContent"
+
+class="mt-10">
+
+<h2 class="text-2xl text-gray-400">
+
+เลือกเมนูด้านบน
+
+</h2>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+const teacherPassword="1234";
+
+function openTeacher(){
+
+const pass=prompt("รหัสผ่านครู");
+
+if(pass!==teacherPassword){
+
+alert("รหัสผ่านไม่ถูกต้อง");
+
+return;
+
+}
+
+document.getElementById("teacherPanel").style.display="block";
+
+}
+
+function closeTeacher(){
+
+document.getElementById("teacherPanel").style.display="none";
+
+}
+<section id="announcement" class="py-24 px-8">
+
+<div class="max-w-6xl mx-auto">
+
+<h1 class="text-5xl font-black text-center text-yellow-400 mb-12">
+
+📢 ข่าวประชาสัมพันธ์
+
+</h1>
+
+<div id="studentAnnouncementList">
+
+<div class="glass rounded-3xl p-8 text-center text-gray-400">
+
+ยังไม่มีประกาศ
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+function showTeacherTab(tab){
+
+const content=document.getElementById("teacherContent");
+
+switch(tab){
+    case "dashboard":
+renderDashboard();
+break;
+
+case "lesson":
+
+content.innerHTML="<h2 class='text-4xl font-black'>📚 จัดการบทเรียน</h2>";
+
+break;
+
+case "quiz":
+
+openQuizManager();
+
+break;
+
+case "news":
+renderAnnouncementManager();
+break;
+openAnnouncementManager();
+break;
+
+content.innerHTML="<h2 class='text-4xl font-black'>📢 จัดการประกาศ</h2>";
+
+break;
+
+case "assignment":
+
+content.innerHTML="<h2 class='text-4xl font-black'>📂 ตรวจงานนักเรียน</h2>";
+
+break;
+
+}
+
+}
+
+
+</script>
+<script>
+   
+/* ==============================
+เปิดเมนูประกาศ
+============================== */
+
+function openAnnouncementManager(){
+
+const content=document.getElementById("announcement");
+
+content.innerHTML=`
+
+<div class="glass rounded-3xl p-8">
+
+<h2 class="text-4xl font-black text-blue-400">
+
+📢 จัดการประกาศ
+
+</h2>
+
+<div class="grid md:grid-cols-2 gap-5 mt-8">
+
+<input
+id="newsTitle"
+class="p-4 rounded-xl text-black"
+placeholder="หัวข้อประกาศ">
+
+<input
+id="newsDate"
+type="date"
+class="p-4 rounded-xl text-black">
+
+</div>
+
+<textarea
+
+id="newsDetail"
+
+rows="6"
+
+class="w-full p-4 rounded-xl text-black mt-5"
+
+placeholder="รายละเอียดประกาศ">
+
+</textarea>
+
+<div class="flex gap-4 mt-5">
+
+<label class="flex items-center gap-2">
+
+<input id="pinNews" type="checkbox">
+
+ปักหมุด
+
+</label>
+
+</div>
+
+<button
+
+onclick="saveAnnouncement()"
+
+class="bg-blue-500 px-8 py-4 rounded-xl font-bold mt-6">
+
+💾 บันทึกประกาศ
+
+</button>
+
+<hr class="my-8">
+
+<div id="announcementList"></div>
+
+</div>
+
+`;
+
+renderAnnouncementList();
+renderStudentAnnouncements();
+
+}
+
+/* ==============================
+บันทึก
+============================== */
+
+function saveAnnouncement(){
+
+const title=document.getElementById("newsTitle").value.trim();
+
+const detail=document.getElementById("newsDetail").value.trim();
+
+const date=document.getElementById("newsDate").value;
+
+const pin=document.getElementById("pinNews").checked;
+
+if(title==""||detail==""){
+
+alert("กรอกข้อมูลให้ครบ");
+
+return;
+
+}
+
+announcements.unshift({
+
+id:Date.now(),
+
+title,
+
+detail,
+
+date,
+
+pin
+
+});
+
+localStorage.setItem(
+
+"announcements",
+
+JSON.stringify(announcements)
+
+);
+
+alert("เพิ่มประกาศเรียบร้อย");
+
+openAnnouncementManager();
+
+}
+
+/* ==============================
+แสดงรายการ
+============================== */
+
+function renderAnnouncementList(){
+
+const list=document.getElementById("announcement");
+
+if(!list)return;
+
+list.innerHTML="";
+
+announcements.forEach(item=>{
+
+list.innerHTML+=`
+
+<div class="glass rounded-2xl p-5 mb-5">
+
+<div class="flex justify-between">
+
+<div>
+
+<h2 class="text-2xl font-black">
+
+${item.pin?"📌 ":""}
+
+${item.title}
+
+</h2>
+
+<p class="text-gray-400 mt-2">
+
+${item.date}
+
+</p>
+
+<p class="mt-3">
+
+${item.detail}
+
+</p>
+
+</div>
+
+<div>
+
+<button
+
+onclick="deleteAnnouncement(${item.id})"
+
+class="bg-red-500 px-5 py-3 rounded-xl">
+
+🗑 ลบ
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* ==============================
+ลบ
+============================== */
+
+function deleteAnnouncement(id){
+
+if(!confirm("ลบประกาศนี้ ?")) return;
+
+announcements=
+
+announcements.filter(item=>item.id!==id);
+
+localStorage.setItem(
+
+"announcements",
+
+JSON.stringify(announcements)
+
+);
+
+renderAnnouncementList();
+
+}
+
+/* ==============================
+หน้าเว็บนักเรียน
+============================== */
+
+function renderStudentAnnouncements(){
+
+const box=document.getElementById("announcement");
+
+if(!box)return;
+
+box.innerHTML="";
+
+announcements
+
+.sort((a,b)=>b.pin-a.pin)
+
+.forEach(item=>{
+
+box.innerHTML+=`
+
+<div class="glass rounded-2xl p-6 mb-5">
+
+<h2 class="text-2xl font-black text-yellow-400">
+
+${item.pin?"📌 ":""}
+
+${item.title}
+
+</h2>
+
+<p class="text-gray-400 mt-2">
+
+${item.date}
+
+</p>
+
+<p class="mt-4">
+
+${item.detail}
+
+</p>
+
+</div>
+
+`;
+
+});
+
+}
+function renderDashboard(){
+
+const content=document.getElementById("teacherContent");
+
+content.innerHTML=`
+
+<h1 class="text-5xl font-black text-cyan-400 mb-10">
+
+📊 Dashboard
+
+</h1>
+
+<div class="grid lg:grid-cols-4 gap-6">
+
+<div class="glass p-6 rounded-3xl text-center">
+
+<h2 class="text-5xl">👨‍🎓</h2>
+
+<h3 class="mt-3">นักเรียน</h3>
+
+<h1 class="text-4xl font-black">
+
+${Object.keys(students).length}
+
+</h1>
+
+</div>
+
+<div class="glass p-6 rounded-3xl text-center">
+
+<h2 class="text-5xl">📚</h2>
+
+<h3 class="mt-3">บทเรียน</h3>
+
+<h1 class="text-4xl font-black">
+
+${teacherLessonsList.length}
+
+</h1>
+
+</div>
+
+<div class="glass p-6 rounded-3xl text-center">
+
+<h2 class="text-5xl">📝</h2>
+
+<h3 class="mt-3">ข้อสอบ</h3>
+
+<h1 class="text-4xl font-black">
+
+${teacherQuiz.length}
+
+</h1>
+
+</div>
+
+<div class="glass p-6 rounded-3xl text-center">
+
+<h2 class="text-5xl">📂</h2>
+
+<h3 class="mt-3">ส่งงาน</h3>
+
+<h1 class="text-4xl font-black">
+
+${assignments.length}
+
+</h1>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* ==========================================
+PART 6.7
+SHOW ANNOUNCEMENT FOR STUDENT
+========================================== */
+
+function renderStudentAnnouncements(){
+
+const box=document.getElementById("studentAnnouncementList");
+
+if(!box) return;
+
+box.innerHTML="";
+
+if(announcements.length===0){
+
+box.innerHTML=`
+
+<div class="glass rounded-3xl p-8 text-center">
+
+ยังไม่มีประกาศ
+
+</div>
+
+`;
+
+return;
+
+}
+
+announcements.forEach((item,index)=>{
+
+box.innerHTML+=`
+
+<div class="glass rounded-3xl p-6 mb-6">
+
+<div class="flex justify-between items-center flex-wrap">
+
+<h2 class="text-3xl font-black text-yellow-400">
+
+${item.title}
+
+</h2>
+
+${index==0?`
+
+<span class="bg-red-500 px-4 py-2 rounded-full font-bold">
+
+NEW
+
+</span>
+
+`:""}
+
+</div>
+
+<p class="mt-5">
+
+${item.detail}
+
+</p>
+
+<p class="text-gray-400 mt-5">
+
+🕒 ${item.date}
+
+</p>
+
+</div>
+
+`;
+
+});
+
+}
+
+</script>
+<script>
+
+/* ==========================================
+PART 6.8
+SMART DASHBOARD
+========================================== */
+
+function renderDashboard(){
+
+const content=document.getElementById("teacherContent");
+
+const studentTotal=Object.keys(students).length;
+
+const lessonTotal=teacherLessonsList.length;
+
+const quizTotal=teacherQuiz.length;
+
+const assignmentTotal=assignments.length;
+
+const announcementTotal=announcements.length;
+
+content.innerHTML=`
+
+<h1 class="text-5xl font-black text-cyan-400 mb-10">
+
+📊 SMART SCHOOL Dashboard
+
+</h1>
+
+<div class="grid lg:grid-cols-5 gap-6">
+
+<div class="glass rounded-3xl p-6 text-center">
+
+<div class="text-5xl">👨‍🎓</div>
+
+<h3 class="mt-3">นักเรียน</h3>
+
+<h1 class="text-4xl font-black mt-3">
+
+${studentTotal}
+
+</h1>
+
+</div>
+
+<div class="glass rounded-3xl p-6 text-center">
+
+<div class="text-5xl">📚</div>
+
+<h3 class="mt-3">บทเรียน</h3>
+
+<h1 class="text-4xl font-black mt-3">
+
+${lessonTotal}
+
+</h1>
+
+</div>
+
+<div class="glass rounded-3xl p-6 text-center">
+
+<div class="text-5xl">📝</div>
+
+<h3 class="mt-3">ข้อสอบ</h3>
+
+<h1 class="text-4xl font-black mt-3">
+
+${quizTotal}
+
+</h1>
+
+</div>
+
+<div class="glass rounded-3xl p-6 text-center">
+
+<div class="text-5xl">📂</div>
+
+<h3 class="mt-3">งานส่ง</h3>
+
+<h1 class="text-4xl font-black mt-3">
+
+${assignmentTotal}
+
+</h1>
+
+</div>
+
+<div class="glass rounded-3xl p-6 text-center">
+
+<div class="text-5xl">📢</div>
+
+<h3 class="mt-3">ประกาศ</h3>
+
+<h1 class="text-4xl font-black mt-3">
+
+${announcementTotal}
+
+</h1>
+
+</div>
+
+</div>
+
+<hr class="my-10">
+
+<div class="glass rounded-3xl p-8">
+
+<h2 class="text-3xl font-black text-yellow-400 mb-6">
+
+📈 สถานะระบบ
+
+</h2>
+
+<div class="space-y-4 text-xl">
+
+<p>✅ ระบบเข้าสู่ระบบ : ปกติ</p>
+
+<p>✅ ระบบบทเรียน : พร้อมใช้งาน</p>
+
+<p>✅ ระบบข้อสอบ : พร้อมใช้งาน</p>
+
+<p>✅ ระบบส่งงาน : พร้อมใช้งาน</p>
+
+<p>✅ ระบบประกาศ : พร้อมใช้งาน</p>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+</script>
